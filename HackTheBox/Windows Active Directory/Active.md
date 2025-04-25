@@ -1,5 +1,5 @@
-[[Enumeration]][[nmap]]
-#Enumeration #nmap
+
+# Enumeration #nmap
 `nmap -sC -sV -oA nmap/active 10.10.10.100`
 `-sC for default scripts`
 `-sV for enumerate all versions`
@@ -11,7 +11,7 @@ Key things to note:
 * domain name = active.htb -> edit `/etc/hosts` to include
 ![[Pasted image 20241209205206.png]]
 
-#Enumeration 
+# Enumeration 
 #nslookup to find the hostname
 `nslookup 10.10.10.100`
 #dnsrecon
