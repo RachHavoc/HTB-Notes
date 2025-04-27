@@ -1,85 +1,96 @@
-`sudo nmap -sC -sV -oA nmap/blackfield 10.10.10.192`
-`-sC for default scripts`
-`-sV for enumerate all versions`
-`-oA output all formats`
+```bash
+sudo nmap -sC -sV -oA nmap/blackfield 10.10.10.192
+```
 
-![[Pasted image 20250109182058.png]]
-Add `BLACKFIELD.local` and `BLACKFIELD`to `/etc/hosts` 
+- `-sC` for default scripts
+    
+- `-sV` to enumerate all versions
+    
+- `-oA` to output all formats
 
-![[Pasted image 20250109182439.png]]
-Trying out #rpcclient because this is active directory.
+### /etc/hosts Update
 
-`rpcclient 10.10.10.192`
+Add the following to `/etc/hosts`:
 
-![[Pasted image 20250109182625.png]]
-No dice. 
+```plaintext
+10.10.10.192 BLACKFIELD.local BLACKFIELD
+```
 
-Testing with null authentication and got in.
+### RPC Client Access
 
-`rpcclient 10.10.10.192 -U ''`
+Trying out **rpcclient** since this is an Active Directory machine:
 
-Run `enumdomusers` but get access denied. Moving on.
+```bash
+rpcclient 10.10.10.192
+```
 
-![[Pasted image 20250109182756.png]]
+No access.
 
-Testing #smbclient in the same way to list file shares.
+Trying with null authentication:
 
-`smbclient -L 10.10.10.192`
+```bash
+rpcclient 10.10.10.192 -U ''
+```
 
-and with null authentication 
-`smbclient -L 10.10.10.192 -U ''`
-![[Pasted image 20250109182947.png]]
-#smbclient does not tell us whether we have read access so using #crackmapexec to get this information. 
+This works.
 
-`cme smb 10.10.10.192 --shares`
+Running `enumdomusers`:
 
-No info.
+```bash
+rpcclient $> enumdomusers
+```
 
-Try with null authentication.
+Access denied.
 
-`cme smb 10.10.10.192 --shares -u ''`
 
-Try with null user and pass.
+### SMB Client Enumeration
 
-`cme smb 10.10.10.192 --shares -u '' -p ''`
+Testing **smbclient** to list shares:
 
-Got a little more. 
+```bash
+smbclient -L 10.10.10.192
+smbclient -L 10.10.10.192 -U ''
+```
 
-Try with fake user.
+Trying with **crackmapexec** to list available shares and permissions:
 
-`cme smb 10.10.10.192 --shares -u 'PleaseSub'`
+```bash
+cme smb 10.10.10.192 --shares
+cme smb 10.10.10.192 --shares -u ''
+cme smb 10.10.10.192 --shares -u '' -p ''
+cme smb 10.10.10.192 --shares -u 'PleaseSub'
+cme smb 10.10.10.192 --shares -u 'PleaseSub' -p ''
+```
 
-Nothing. 
+### Mounting the `profiles$` Share
 
-Try with fake user and blank password and BINGO. 
+Enumerating the `profiles$` share:
 
-`cme smb 10.10.10.192 --shares -u 'PleaseSub' -p ''`
+```bash
+smbclient '//10.10.10.192/profiles$'
+```
 
-![[Pasted image 20250109183538.png]]
-Enumerating the profiles$ share with #smbclient again. 
+**Findings:** Lots of user directories.
 
-`smbclient '//10.10.10.192/profiles$'`
+Mounting the share locally:
 
-![[Pasted image 20250109183902.png]]
-Get a ton of users. 
+```bash
+sudo mount -t cifs '//10.10.10.192/profiles$' /mnt -o user=""
+```
 
-![[Pasted image 20250109183943.png]]
-Will build user list by mounting the profiles$ directory first. 
+Navigate into the mount point:
 
-`sudo mount -t cifs '//10.10.10.192/profiles$' /mnt`
+```bash
+cd /mnt
+ls -la
+```
 
-![[Pasted image 20250109184204.png]]
+Finding all files and directories recursively:
 
-`cd /mnt`
+```bash
+find .
+```
 
-`ls -la`
-
-Tons of user directories 
-
-![[Pasted image 20250109184249.png]]
-Run `find .`
-
-![[Pasted image 20250109184334.png]]
 Use #kerbrute [[Kerbrute]] to enumerate valid usernames
 
 GitHub:
