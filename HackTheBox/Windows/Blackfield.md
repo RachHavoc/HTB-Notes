@@ -208,14 +208,14 @@ https://github.com/dirkjanm/BloodHound.py
 
 Running into issues so going to edit `/etc/resolv.conf`
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250109203720.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250109203720.png)
 Deleted stuff from `/etc/hosts`
 
 ```
 python3 bloodhound.py -u support -p '#00^Blackknight' -ns 10.10.10.192 -d blackfield.local -c all
 ```
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250109203952.png]]
+![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250109203952.png]]
 Got some `.json` files from this. 
 
 Start #neo4j 
@@ -240,7 +240,7 @@ Go to queries..
 
 Set this user as high value target 
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250109204722.png]]
+![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250109204722.png]]
 
 Set `audit2020`, `svc.backup` as high value targets 
 
@@ -248,13 +248,13 @@ The click `Shortest Path to High Value Targets`
 
 Looks insane. 
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250109204917.png]]
+![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250109204917.png]]
 Look for shortest path to `audit2020` user 
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250109205031.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250109205031.png)
 Discover the `support` user can change `audit2020`'s password without knowing that user's current password. 
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250109205215.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250109205215.png)
 Change this user's password from linux with #rpcclient 
 
 ```
@@ -265,7 +265,7 @@ Set the password with
 
 `setuserinfo2 Audit2020 23 'PleaseSub'`
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250109205719.png]]
+![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250109205719.png]]
 It failed tho because password was not complex enough.
 
 ```
