@@ -1,0 +1,1 @@
+1. **Capstone Exercise**: Start VM Group 2 and try to execute the dcsync technique and get access to dc1 in order to get the flag located on the administrator's desktop. To do so, log in via RDP as the _jeffadmin_ and perform dcsync against the domain _Administrator_ user to obtain its NTLM hash.

@@ -1,0 +1,25 @@
+{
+  "immediateReplace": true,
+  "suggester": true,
+  "historyPriority": true,
+  "historyLimit": 100,
+  "history": [
+    ":star:",
+    ":eyes:",
+    ":spiral_notepad:",
+    ":roll_eyes:",
+    ":badminton:",
+    ":sob:",
+    ":potato:",
+    ":compass:",
+    ":chocolate_bar:",
+    ":sparkles:",
+    ":exclamation:",
+    ":smiley:",
+    ":sunglasses:",
+    ":bulb:",
+    ":no_entry:",
+    ":arrow_right:",
+    ":coin:"
+  ]
+}

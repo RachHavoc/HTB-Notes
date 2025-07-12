@@ -1,0 +1,7 @@
+{
+  "remoteURL": "https://github.com/RachHavoc/Offensive-Security.git",
+  "gitLocation": "/usr/bin/git",
+  "syncinterval": 0,
+  "isSyncOnLoad": true,
+  "checkStatusOnLoad": true
+}
